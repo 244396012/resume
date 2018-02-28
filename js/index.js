@@ -165,7 +165,7 @@
 	});
     L3_CircleText_es6.addToGroupOrLayer(L3_group);
 
-	//绘制3环上的 gp圆形组
+	//绘制3环上的 webpack圆形组
 	var L3_CircleText_gp = new CircleText({
 		x: outerRadius * Math.cos(205 * Math.PI / 180),
 		y: outerRadius * Math.sin(205 * Math.PI / 180),
@@ -173,7 +173,7 @@
 		outerRadius: 38, //外圆半径
 		innerStyle: '#ef9119', //内圆的填充样式
 		outerStyle: '#E7EDDB', //外圆的填充样式
-		text: 'Gulp' //圆形内的文字
+		text: 'Webpack' //圆形内的文字
 	});
     L3_CircleText_gp.addToGroupOrLayer(L3_group);
 
