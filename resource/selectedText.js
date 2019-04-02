@@ -1,19 +1,17 @@
-﻿/*
- * 该文件是文本操作对象。
- * 定义operateText对象，主要包含复制样式、自定义样式、插入标签、切换大小写等。
- * author: zy
+/*
+* 该文件是文本操作对象。
+* 定义operateText对象，主要包含复制样式、自定义样式、插入标签、切换大小写等。
+* author: zy
 */
 var operateText = (function ($) {
-
-/*
+    /*
     ******* 私有方法 **********
-*/
-
-    /***
-    * 获取某个节点的span父节点
-    * @param domEle：节点
-    * @returns span父节点
     */
+    /***
+     * 获取某个节点的span父节点
+     * @param domEle：节点
+     * @returns span父节点
+     */
     function getClass(domEle) {
         var result = domEle;
         while (!(result.tagName && result.tagName == "SPAN")) {
@@ -21,26 +19,25 @@ var operateText = (function ($) {
         }
         return $(result);
     };
-    /*** 方法：插入标签
-       * 打断某个span标签，生成新的span标签
-       * @param span$: 标签
-       * @param offset：偏移量
-       * @param id: 标签id
-       * @param txt: 标签序号
-       * @param type: 标签类型
-       */
-    function DealTagSpan(type, span, offset, offsetS, offsetE, tag) {
+    /*** 方法：处理将插入的标签
+     * 打断某个span标签，生成新的span标签
+     * @param span$: 标签
+     * @param offset：偏移量
+     * @param id: 标签id
+     * @param txt: 标签序号
+     * @param type: 标签类型
+     */
+    function InsertTag(type, span, offset, offsetS, offsetE, tag) {
         this.type = type;
         this.span = span;
         this.offset = offset;
         this.offsetS = offsetS;
         this.offsetE = offsetE;
-
         let copyTag = $(tag).clone().removeAttr('style'),
             copyEndTag = null;
         if (copyTag.hasClass('double')) {
             let tempTag = $(tag).clone().removeClass('start').removeAttr('data-notag style').addClass('end');
-            tempTag.find('img').attr('src', '/Contents/Editor/images/tag-' + tempTag.attr('data-no') +'-02.png');
+            tempTag.find('img').attr('src', '/Contents/Editor/images/tag-' + tempTag.attr('data-no') + '-02.png');
             copyEndTag = tempTag;
         }
         //选中文本在标签内
@@ -104,38 +101,25 @@ var operateText = (function ($) {
                     break;
             }
         };
-        
     }
     //方法：复制文本样式
-    function DealCopySpan(styles, span, offset, offsetS, offsetE, oSpan) {
-        var cls = styles.cls.value,
-            style = "";
-        this.styles = styles;
+    function CopyStyle(styObj, span, offset, offsetS, offsetE, oSpan) {
+        var _className = styObj.className.value,
+            _styleStr = "";
         this.span = span;
         this.offset = offset;
         this.offsetS = offsetS;
         this.offsetE = offsetE;
         this.oSpan = oSpan;
-
-        for (let key in styles.visual) {
+        for (let key in styObj.dataSet) {
             var val = my_match(key);
             if (val === 'font-size:') {
-                var fontsize = +styles.visual[key].slice(0, -2);
-                if (fontsize >= 40) {
-                    fontsize = 32;
-                } else if (fontsize >= 30 && fontsize < 40) {
-                    fontsize = 26;
-                } else if (fontsize >= 20 && fontsize < 30) {
-                    fontsize = 20;
-                } else if (fontsize < 12){
-                    fontsize = 12;
-                } 
-                style += val + fontsize + "px;";
-            } else if (key !== 'fw' && key !== 'db'){
-                style += val + styles.visual[key].replace(/[,]+/g, " ") + ";";
+                var fontsize = styObj.dataSet[key].slice(0, -2);
+                _styleStr += val + fontsize + "px;";
+            } else if (key !== 'fw' && key !== 'db') {
+                _styleStr += val + styObj.dataSet[key].replace(/[,]+/g, " ") + ";";
             }
         }
-        
         //选中文本在标签内
         this.single = function () {
             var text = this.span.text(),
@@ -149,10 +133,10 @@ var operateText = (function ($) {
             thirdSpan.text(thirdTxt);
             this.span.after(secondSpan);
             secondSpan.after(thirdSpan);
-            secondSpan.removeClass().addClass(cls);
-            secondSpan.attr({ 'style': style });
-            for (let item in styles.visual) {
-                secondSpan.attr("data-" + item, styles.visual[item].replace(/[,]+/g," "));
+            secondSpan.removeClass().addClass(_className);
+            secondSpan.attr({ 'style': _styleStr });
+            for (let item in styObj.dataSet) {
+                secondSpan.attr("data-" + item, styObj.dataSet[item].replace(/[,]+/g, " "));
             }
         };
         //选中文本跨多个标签
@@ -164,34 +148,33 @@ var operateText = (function ($) {
             if (this.offsetS && this.offsetS != '') {
                 var sAll = this.span.next().nextUntil(this.oSpan).not(".tagWrap");
                 if (!secondSpan.hasClass('tagWrap')) {
-                    secondSpan.removeClass().addClass(cls);
-                    secondSpan.attr({ 'style': style });
+                    secondSpan.removeClass().addClass(_className);
+                    secondSpan.attr({ 'style': _styleStr });
                 }
-                sAll.removeClass().addClass(cls);
-                sAll.attr({ 'style': style });
-                for (let item in styles.visual) {
-                    secondSpan.attr("data-" + item, styles.visual[item].replace(/[,]+/g, " "));
-                    sAll.attr("data-" + item, styles.visual[item].replace(/[,]+/g, " "));
+                sAll.removeClass().addClass(_className);
+                sAll.attr({ 'style': _styleStr });
+                for (let item in styObj.dataSet) {
+                    secondSpan.attr("data-" + item, styObj.dataSet[item].replace(/[,]+/g, " "));
+                    sAll.attr("data-" + item, styObj.dataSet[item].replace(/[,]+/g, " "));
                 }
             }
             if (this.offsetE && this.offsetE != '') {
                 var sAll = this.oSpan.next().nextUntil(this.span).not(".tagWrap");
                 if (!this.span.hasClass('tagWrap')) {
-                    this.span.removeClass().addClass(cls);
-                    this.span.attr({ 'style': style });
+                    this.span.removeClass().addClass(_className);
+                    this.span.attr({ 'style': _styleStr });
                 }
-                sAll.removeClass().addClass(cls);
-                sAll.attr({ 'style': style });
-                for (let item in styles.visual) {
-                    this.span.attr("data-" + item, styles.visual[item].replace(/[,]+/g, " "));
-                    sAll.attr("data-" + item, styles.visual[item].replace(/[,]+/g, " "));
+                sAll.removeClass().addClass(_className);
+                sAll.attr({ 'style': _styleStr });
+                for (let item in styObj.dataSet) {
+                    this.span.attr("data-" + item, styObj.dataSet[item].replace(/[,]+/g, " "));
+                    sAll.attr("data-" + item, styObj.dataSet[item].replace(/[,]+/g, " "));
                 }
             }
             if (this.span.hasClass('tagWrap')) return;
             this.span.text(firstTxt);
             secondSpan.text(secondTxt);
             this.span.after(secondSpan);
-
         };
         //匹配属于何种样式，返回值value
         function my_match(key) {
@@ -206,7 +189,7 @@ var operateText = (function ($) {
         }
     }
     // 方法：自定义文本样式
-    function DealCustomStyle(type, val, span, offset, offsetS, offsetE, oSpan) {
+    function CustomStyle(type, val, span, offset, offsetS, offsetE, oSpan) {
         var cls = '', style = '';
         this.type = type;
         this.value = val.split('#')[1];
@@ -257,7 +240,7 @@ var operateText = (function ($) {
             secondSpan.text(secondTxt);
             this.span.after(secondSpan);
             if (this.offsetS && this.offsetS != '') {
-                //  console.log('end')
+                // console.log('end')
                 var sAll = this.span.next().nextUntil(this.oSpan);
                 if (this.type && this.type === 'cl') {
                     cls = 'fontColor';
@@ -295,7 +278,7 @@ var operateText = (function ($) {
                 }
             }
             if (this.offsetE && this.offsetE != '') {
-                //  console.log('start')
+                // console.log('start')
                 var sAll = this.oSpan.next().nextUntil(this.span);
                 if (this.type && this.type === 'cl') {
                     cls = 'fontColor';
@@ -335,7 +318,7 @@ var operateText = (function ($) {
         };
     };
     // 类：选中文本，切换大小写
-    class LowerAndUpperText {
+    class CaseSensitive {
         constructor(startEle, endEle, startOffset, endOffset) {
             this.startEle = startEle;
             this.endEle = endEle;
@@ -543,24 +526,21 @@ var operateText = (function ($) {
             range.setEnd(this.endEle[0].childNodes[0], this.endOffset);
         };
     };
-
-
-/*
+    /*
     ******** 共有方法 **********
-*/
-    /***
-    * 方法：插入标签
-    * @param id：插入标签id
-    * @param num: 标签编号
-    * @param type: 标签类型
-    * @param tar: 选择文本属于的父级tr
     */
-    function insertTag(type, $tr, tag) {
+    /***
+     * 方法：插入标签入口
+     * @param id：插入标签id
+     * @param num: 标签编号
+     * @param type: 标签类型
+     * @param tar: 选择文本属于的父级tr
+     */
+    function insertTagEntry(type, $tr, tag) {
         var userSelection, range, copy, change,
             nodes, editTr, editTd;
         var prevSvg, nextSvg;
         var cStatus = new ChangeConfirmStatus();
-
         if (window.getSelection) {
             userSelection = window.getSelection();
         } else if (document.selection) {
@@ -608,116 +588,68 @@ var operateText = (function ($) {
                 return false;
             }
         }
-
         if ($(editTr).attr('data-no') === $tr.attr('data-no')) {
             if (type === 'double') {
-                switch (nodes.length) {
-                    case 0:
-                        new DealTagSpan(type, getClass(range.startContainer), '', range.startOffset, range.endOffset, tag).single();
-                        break;
-                    case 1:
-                        new DealTagSpan(type, getClass(range.startContainer), '', range.startOffset, range.endOffset, tag).single();
-                        break;
-                    default:
-                        for (var i = 0; i < nodes.length; i++) {
-                            if (i == 0) {
-                                new DealTagSpan('left', getClass(range.startContainer), range.startOffset, '', '', tag).multi();
-                            } else if (i == nodes.length - 1) {
-                                new DealTagSpan('right', getClass(range.endContainer), range.endOffset, '', '', tag).multi();
-                            }
+                if (nodes.length === 0 || nodes.length === 1) {
+                    const singleTag = new InsertTag(type, getClass(range.startContainer), '', range.startOffset, range.endOffset, tag);
+                    singleTag.single();
+                } else {
+                    for (var i = 0; i < nodes.length; i++) {
+                        if (i == 0) {
+                            const leftTag = new InsertTag('left', getClass(range.startContainer), range.startOffset, '', '', tag);
+                            leftTag.multi();
+                        } else if (i == nodes.length - 1) {
+                            const rightTag = new InsertTag('right', getClass(range.endContainer), range.endOffset, '', '', tag);
+                            rightTag.multi();
                         }
+                    }
                 }
             } else if (type === 'single' && userSelection.type == 'Caret') {
-                new DealTagSpan(type, getClass(range.startContainer), '', range.startOffset, range.endOffset, tag).single();
+                const singleTag = new InsertTag(type, getClass(range.startContainer), '', range.startOffset, range.endOffset, tag);
+                singleTag.single();
             }
             (change && change.length > 0) && cStatus.single(change);
             window.setTimeout(() => {
                 var _this = change[0];
                 classEdit.tempTrans($(_this));
-            }, 500);
-
+            }, 50);
         }
     }
-
-    /*
-      ******* 复制样式：带有颜色、背景色的原文 *****
-    */
-    function copyStyle(ele) {
-
+    //复制样式：带有颜色、背景色的原文入口
+    function copyStyleEntry(ele) {
         var userSelection, range, copy, nodes, change;
         var cStatus = new ChangeConfirmStatus();
-
-        var temp = ele.dataset;
-        var styleList = {
-            cls: ele.classList,
-            visual: temp
+        var styleObj = {
+            className: ele.classList,
+            dataSet: ele.dataset
         };
-
         if (window.getSelection) {
             userSelection = window.getSelection();
         } else if (document.selection) {
             userSelection = document.selection.createRange();
         }
         if (userSelection.type === 'None') return;
-
         range = userSelection.getRangeAt(0);
         copy = range.cloneContents();
         nodes = $(copy).context.childNodes;
         change = $(range.startContainer).parents('.edition-target');
-
-        if ($(change).parents('tr').hasClass('locked')
-            || $(change).parents('tr').hasClass('repeated')) return;
-
+        if ($(change).parents('tr').hasClass('locked') || $(change).parents('tr').hasClass('repeated')) {
+            return false;
+        }
         if (nodes.length === 0) {
-            return;
+            return false;
         } else if (nodes.length > 0 && nodes.length <= 1) {
-            new DealCopySpan(styleList, getClass(range.startContainer), '', range.startOffset, range.endOffset, '').single();
+            const singleSpan = new CopyStyle(styleObj, getClass(range.startContainer), '', range.startOffset, range.endOffset, '');
+            singleSpan.single();
         } else if (nodes.length > 1) {
             for (var i = 0; i < nodes.length; i++) {
                 if (i == 0) {
-                    new DealCopySpan(styleList, getClass(range.startContainer), range.startOffset, nodes.length, '', getClass(range.endContainer)).multi();
+                    const firstSpan = new CopyStyle(styleObj, getClass(range.startContainer), range.startOffset, nodes.length, '', getClass(range.endContainer));
+                    firstSpan.multi();
                     continue;
                 } else if (i == nodes.length - 1) {
-                    new DealCopySpan(styleList, getClass(range.endContainer), range.endOffset, '', nodes.length, getClass(range.startContainer)).multi();
-                } 
-            }
-        }
-        (change && change.length > 0) && cStatus.single(change);
-        window.setTimeout(() => {
-            var _this = change[0];
-            classEdit.tempTrans($(_this));
-        }, 500);
-    }
-    
-    //用户自定义添加颜色
-    function customStyle(val, type) {
-        var cStatus = new ChangeConfirmStatus();
-        var userSelection, range, copy, nodes, change;
-
-        if (window.getSelection) {
-            userSelection = window.getSelection();
-        } else if (document.selection) {
-            userSelection = document.selection.createRange();
-        }
-        if (userSelection.type === 'None') return;
-        range = userSelection.getRangeAt(0);
-        copy = range.cloneContents();
-        nodes = $(copy).context.childNodes;
-        change = $(range.startContainer).parents('.edition-target');
-
-        if (nodes.length === 0) {
-            return;
-        }
-        if (nodes.length > 0 && nodes.length <= 1) {
-            new DealCustomStyle(type, val, getClass(range.startContainer), '', range.startOffset, range.endOffset, '').single();
-        }
-        if (nodes.length > 1) {
-            for (var i = 0; i < nodes.length; i++) {
-                if (i === 0) {
-                    new DealCustomStyle(type, val, getClass(range.startContainer), range.startOffset, nodes.length, '', getClass(range.endContainer)).multi();
-                    continue;
-                } else if (i === nodes.length - 1) {
-                    new DealCustomStyle(type, val, getClass(range.endContainer), range.endOffset, '', nodes.length, getClass(range.startContainer)).multi();
+                    const lastSpan = new CopyStyle(styleObj, getClass(range.endContainer), range.endOffset, '', nodes.length, getClass(range.startContainer));
+                    lastSpan.multi();
                 }
             }
         }
@@ -725,14 +657,51 @@ var operateText = (function ($) {
         window.setTimeout(() => {
             var _this = change[0];
             classEdit.tempTrans($(_this));
-        }, 500);
+        }, 50);
     }
-
-    //切换大小写
-    function toLowerAndUpper(f2) {
+    //用户自定义添加颜色入口
+    function customStyleEntry(val, type) {
+        var cStatus = new ChangeConfirmStatus();
+        var userSelection, range, copy, nodes, change;
+        if (window.getSelection) {
+            userSelection = window.getSelection();
+        } else if (document.selection) {
+            userSelection = document.selection.createRange();
+        }
+        if (userSelection.type === 'None') return;
+        range = userSelection.getRangeAt(0);
+        copy = range.cloneContents();
+        nodes = $(copy).context.childNodes;
+        change = $(range.startContainer).parents('.edition-target');
+        if (nodes.length === 0) {
+            return;
+        }
+        if (nodes.length > 0 && nodes.length <= 1) {
+            const singleStyle = new CustomStyle(type, val, getClass(range.startContainer), '', range.startOffset, range.endOffset, '');
+            singleStyle.single();
+        }
+        if (nodes.length > 1) {
+            for (var i = 0; i < nodes.length; i++) {
+                if (i === 0) {
+                    const firstStyle = new CustomStyle(type, val, getClass(range.startContainer), range.startOffset, nodes.length, '', getClass(range.endContainer));
+                    firstStyle.multi();
+                    continue;
+                } else if (i === nodes.length - 1) {
+                    const lastStyle = new CustomStyle(type, val, getClass(range.endContainer), range.endOffset, '', nodes.length, getClass(range.startContainer));
+                    lastStyle.multi();
+                }
+            }
+        }
+        (change && change.length > 0) && cStatus.single(change);
+        window.setTimeout(() => {
+            var _this = change[0];
+            classEdit.tempTrans($(_this));
+        }, 50);
+    }
+    //切换大小写入口
+    function caseSensitiveEntry(f2) {
         var cStatus = new ChangeConfirmStatus();
         var userSelection, range, copy, nodes, change, parent;
-
         if (window.getSelection) {
             userSelection = window.getSelection();
         } else if (document.selection) {
@@ -758,7 +727,7 @@ var operateText = (function ($) {
                 } else if (caps == 3) {
                     for (var i = 0, len = elDiv.contents().length; i < len; i++) {
                         var child = elDiv.contents()[i];
-                        var arr = [], dealArr =[], str = "";
+                        var arr = [], dealArr = [], str = "";
                         arr = child.innerText.split(' ');
                         dealArr = arr.map((item, index) => {
                             return item.slice(0, 1).toUpperCase() + item.slice(1);
@@ -782,42 +751,33 @@ var operateText = (function ($) {
             }
             (change && change.length > 0) && cStatus.single(change);
             window.setTimeout(() => {
-                var _this = change[0];
-                var $proid = dataConfig.ProjectID,
-                    $fid = dataConfig.FileID,
-                    $pid = _this.dataset.pid,
-                    $wid = _this.dataset.wid;
-                classEdit.tempTrans($(_this), $proid, $fid, $pid, $wid);
-            }, 500);
+                var _this = change[0]
+                classEdit.tempTrans($(_this));
+            }, 50);
             return;
         }
         copy = range.cloneContents();
         nodes = $(copy).context.childNodes;
-        var lowerAndUpper = new LowerAndUpperText(getClass(range.startContainer), getClass(range.endContainer), range.startOffset, range.endOffset);
+        const caseSen = new CaseSensitive(getClass(range.startContainer), getClass(range.endContainer), range.startOffset, range.endOffset);
         if (nodes.length === 0) {
             return;
         } else if (nodes.length === 1) {
-            !f2 && lowerAndUpper.$text();
-            f2 && lowerAndUpper.$sentenceTxt(f2);
+            !f2 && caseSen.$text();
+            f2 && caseSen.$sentenceTxt(f2);
         } else if (nodes.length >= 2) {
-            !f2 && lowerAndUpper.$document();
-            f2 && lowerAndUpper.$sentenceTag(f2);
+            !f2 && caseSen.$document();
+            f2 && caseSen.$sentenceTag(f2);
         }
         (change && change.length > 0) && cStatus.single(change);
         window.setTimeout(() => {
             var _this = change[0];
-            var $proid = dataConfig.ProjectID,
-                $fid = dataConfig.FileID,
-                $pid = _this.dataset.pid,
-                $wid = _this.dataset.wid;
-            classEdit.tempTrans($(_this), $proid, $fid, $pid, $wid);
-        }, 500);
+            classEdit.tempTrans($(_this));
+        }, 50);
     }
-
     return {
-        copyStyle,
-        insertTag,
-        customStyle,
-        toLowerAndUpper
+        insertTagEntry,
+        copyStyleEntry,
+        customStyleEntry,
+        caseSensitiveEntry
     }
 })(jQuery);
