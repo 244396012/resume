@@ -207,10 +207,8 @@ define(['rangy-range', 'rangy-style', 'rangy-core'], function (segRangeTool, seg
         };
         window.setTimeout(() => {
             var _this = divContainer[0];
-            var $pid = _this.dataset.pid,
-                $wid = _this.dataset.wid;
-            classEdit.tempTrans($(_this), $pid, $wid);
-        }, 500);
+            classEdit.tempTrans($(_this));
+        }, 50);
     }
 
     function ClearBreakSpan(span, offset, offsetS, offsetE, oSpan) {
@@ -221,7 +219,7 @@ define(['rangy-range', 'rangy-style', 'rangy-core'], function (segRangeTool, seg
         this.offsetE = offsetE;
         this.oSpan = oSpan;
 
-        this.single = function () {//Ñ¡ÖÐÎÄ±¾ÔÚ±êÇ©ÄÚ
+        this.single = function () {//é€‰ä¸­æ–‡æœ¬åœ¨æ ‡ç­¾å†…
             var text = this.span.text(),
                 firstTxt = text.substring(0, this.offsetS),
                 secondTxt = text.substring(this.offsetS, this.offsetE),
@@ -239,7 +237,7 @@ define(['rangy-range', 'rangy-style', 'rangy-core'], function (segRangeTool, seg
             }
         }
 
-        this.multi = function () {//Ñ¡ÖÐÎÄ±¾¿ç¶à¸ö±êÇ©
+        this.multi = function () {//é€‰ä¸­æ–‡æœ¬è·¨å¤šä¸ªæ ‡ç­¾
             var text = this.span.text(),
                 firstTxt = text.substring(0, this.offset),
                 secondTxt = text.substring(this.offset),
