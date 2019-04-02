@@ -39,7 +39,7 @@ var operateText = (function ($) {
             let tempTag = $(tag).clone().removeClass('start').removeAttr('data-notag style').addClass('end');
             tempTag.find('img').attr('src', '/Contents/Editor/images/tag-' + tempTag.attr('data-no') + '-02.png');
             copyEndTag = tempTag;
-        }
+        };
         //选中文本在标签内
         this.single = function () {
             if (this.span.hasClass("tagWrap") && this.span.hasClass("single")) {
@@ -119,7 +119,7 @@ var operateText = (function ($) {
             } else if (key !== 'fw' && key !== 'db') {
                 _styleStr += val + styObj.dataSet[key].replace(/[,]+/g, " ") + ";";
             }
-        }
+        };
         //选中文本在标签内
         this.single = function () {
             var text = this.span.text(),
@@ -751,7 +751,7 @@ var operateText = (function ($) {
             }
             (change && change.length > 0) && cStatus.single(change);
             window.setTimeout(() => {
-                var _this = change[0]
+                var _this = change[0];
                 classEdit.tempTrans($(_this));
             }, 50);
             return;
