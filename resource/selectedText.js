@@ -114,8 +114,10 @@ var operateText = (function ($) {
         for (let key in styObj.dataSet) {
             var val = my_match(key);
             if (val === 'font-size:') {
-                var fontsize = styObj.dataSet[key].slice(0, -2);
+                var fontsize = styObj.dataSet[key];
                 _styleStr += val + fontsize + "px;";
+            } else if(val === 'text-decoration:'){
+                _styleStr += val + 'line-through;';
             } else if (key !== 'fw' && key !== 'db') {
                 _styleStr += val + styObj.dataSet[key].replace(/[,]+/g, " ") + ";";
             }
@@ -184,13 +186,14 @@ var operateText = (function ($) {
                 case "cl": value = "color:#"; break;
                 case "sz": value = "font-size:"; break;
                 case "fs": value = "font-family:"; break;
+                case "sk": value = "text-decoration:"; break;
             }
             return value;
         }
     }
     // 方法：自定义文本样式
     function CustomStyle(type, val, span, offset, offsetS, offsetE, oSpan) {
-        var cls = '', style = '';
+        var cls = '', style = '', originStyle = '';
         this.type = type;
         this.value = val.split('#')[1];
         this.span = span;
@@ -213,21 +216,17 @@ var operateText = (function ($) {
             secondSpan.after(thirdSpan);
             if (this.type && this.type === 'cl') {
                 cls = 'fontColor';
-                style = 'color:#' + this.value;
+                style ='color:#' + this.value + ';';
+                originStyle = secondSpan.attr('style');
                 secondSpan.addClass(cls);
-                secondSpan.attr({ 'style': style, 'data-cl': this.value });
-                if (secondSpan.hasClass('fontHighBg')) {
-                    secondSpan.attr({ 'style': 'background-color:#' + secondSpan.attr('data-bg') + ';color:#' + this.value, 'data-cl': this.value });
-                }
+                secondSpan.attr({'style': originStyle ? originStyle+style : style, 'data-cl': this.value});
             }
             if (this.type && this.type === 'bg') {
                 cls = 'fontHighBg';
-                style = 'background-color:#' + this.value;
+                originStyle = secondSpan.attr('style');
+                style = 'background-color:#' + this.value + ';';
                 secondSpan.addClass(cls);
-                secondSpan.attr({ 'style': style, 'data-bg': this.value });
-                if (secondSpan.hasClass('fontColor')) {
-                    secondSpan.attr({ 'style': 'color:#' + secondSpan.attr('data-cl') + ';background-color:#' + this.value, 'data-bg': this.value });
-                }
+                secondSpan.attr({ 'style': originStyle ? originStyle+style : style, 'data-bg': this.value });
             }
         };
         //选中文本跨多个标签
@@ -244,36 +243,28 @@ var operateText = (function ($) {
                 var sAll = this.span.next().nextUntil(this.oSpan);
                 if (this.type && this.type === 'cl') {
                     cls = 'fontColor';
-                    style = 'color:#' + this.value;
+                    originStyle = secondSpan.attr('style');
+                    style = 'color:#' + this.value + ';';
                     secondSpan.addClass(cls);
-                    secondSpan.attr({ 'style': style, 'data-cl': this.value });
-                    sAll.addClass(cls);
-                    sAll.attr({ 'style': style, 'data-cl': this.value });
-                    if (secondSpan.hasClass('fontHighBg')) {
-                        secondSpan.attr({ 'style': 'background-color:#' + secondSpan.attr('data-bg') + ';color:#' + this.value, 'data-cl': this.value });
-                    }
+                    secondSpan.attr({ 'style': originStyle ? originStyle+style : style, 'data-cl': this.value });
                     for (let i = 0; i < sAll.length; i++) {
-                        var tar = $(sAll[i]);
-                        if (tar.hasClass('fontHighBg')) {
-                            tar.attr({ 'style': 'background-color:#' + tar.attr('data-bg') + ';color:#' + this.value, 'data-cl': this.value });
-                        }
+                        var tar = $(sAll[i]),
+                            currStyle = tar.attr('style');
+                        tar.addClass(cls);
+                        tar.attr({ 'style': currStyle ? currStyle+style : style, 'data-cl': this.value });
                     }
                 }
                 if (this.type && this.type === 'bg') {
                     cls = 'fontHighBg';
-                    style = 'background-color:#' + this.value;
+                    style = 'background-color:#' + this.value + ';';
+                    originStyle = secondSpan.attr('style');
                     secondSpan.addClass(cls);
-                    secondSpan.attr({ 'style': style, 'data-bg': this.value });
-                    sAll.addClass(cls);
-                    sAll.attr({ 'style': style, 'data-bg': this.value });
-                    if (secondSpan.hasClass('fontColor')) {
-                        secondSpan.attr({ 'style': 'color:#' + secondSpan.attr('data-cl') + ';background-color:#' + this.value, 'data-bg': this.value });
-                    }
+                    secondSpan.attr({ 'style': originStyle ? originStyle+style : style, 'data-bg': this.value });
                     for (let i = 0; i < sAll.length; i++) {
-                        var tar = $(sAll[i]);
-                        if (tar.hasClass('fontColor')) {
-                            tar.attr({ 'style': 'color:#' + tar.attr('data-cl') + ';background-color:#' + this.value, 'data-bg': this.value });
-                        }
+                        var tar = $(sAll[i]),
+                            currStyle = tar.attr('style');
+                        tar.addClass(cls);
+                        tar.attr({ 'style': currStyle ? currStyle+style : style, 'data-bg': this.value });
                     }
                 }
             }
@@ -282,36 +273,28 @@ var operateText = (function ($) {
                 var sAll = this.oSpan.next().nextUntil(this.span);
                 if (this.type && this.type === 'cl') {
                     cls = 'fontColor';
-                    style = 'color:#' + this.value;
+                    style = 'color:#' + this.value + ';';
+                    originStyle = secondSpan.attr('style');
                     this.span.addClass(cls);
-                    this.span.attr({ 'style': style, 'data-cl': this.value });
-                    sAll.addClass(cls);
-                    sAll.attr({ 'style': style, 'data-cl': this.value });
-                    if (this.span.hasClass('fontHighBg')) {
-                        this.span.attr({ 'style': 'background-color:#' + this.span.attr('data-bg') + ';color:#' + this.value, 'data-cl': this.value });
-                    }
+                    this.span.attr({ 'style': originStyle ? originStyle+style : style, 'data-cl': this.value });
                     for (let i = 0; i < sAll.length; i++) {
-                        var tar = $(sAll[i]);
-                        if (tar.hasClass('fontHighBg')) {
-                            tar.attr({ 'style': 'background-color:#' + tar.attr('data-bg') + ';color:#' + this.value, 'data-cl': this.value });
-                        }
+                        var tar = $(sAll[i]),
+                            currStyle = tar.attr('style');
+                        tar.addClass(cls);
+                        tar.attr({ 'style': currStyle ? currStyle+style : style, 'data-cl': this.value });
                     }
                 }
                 if (this.type && this.type === 'bg') {
                     cls = 'fontHighBg';
-                    style = 'background-color:#' + this.value;
+                    style = 'background-color:#' + this.value+';';
+                    originStyle = secondSpan.attr('style');
                     this.span.addClass(cls);
-                    this.span.attr({ 'style': style, 'data-bg': this.value });
-                    sAll.addClass(cls);
-                    sAll.attr({ 'style': style, 'data-bg': this.value });
-                    if (this.span.hasClass('fontColor')) {
-                        this.span.attr({ 'style': 'color:#' + this.span.attr('data-cl') + ';background-color:#' + this.value, 'data-bg': this.value });
-                    }
+                    this.span.attr({ 'style': originStyle ? originStyle+style : style, 'data-bg': this.value });
                     for (let i = 0; i < sAll.length; i++) {
-                        var tar = $(sAll[i]);
-                        if (tar.hasClass('fontColor')) {
-                            tar.attr({ 'style': 'color:#' + tar.attr('data-cl') + ';background-color:#' + this.value, 'data-bg': this.value });
-                        }
+                        var tar = $(sAll[i]),
+                            currStyle = tar.attr('style');
+                        tar.addClass(cls);
+                        tar.attr({ 'style': currStyle ? currStyle+style : style, 'data-bg': this.value });
                     }
                 }
             }
@@ -554,7 +537,7 @@ var operateText = (function ($) {
         change = $(range.startContainer).parents('.edition-target');
         editTd = $($(range.commonAncestorContainer).context.parentNode).parents('td.active-text');
         editTr = range.commonAncestorContainer.className
-            && (range.commonAncestorContainer.className == 'edition-target' || range.commonAncestorContainer.className == 'edition-source') ? editTd.context.parentNode : editTd[0].parentNode;
+        && (range.commonAncestorContainer.className == 'edition-target' || range.commonAncestorContainer.className == 'edition-source') ? editTd.context.parentNode : editTd[0].parentNode;
         //选中原文，不能插入
         if ((range.commonAncestorContainer.className && range.commonAncestorContainer.className == 'edition-source')
             || (range.commonAncestorContainer.nodeName == '#text' && range.commonAncestorContainer.parentNode.parentNode.className == 'edition-source')) {
@@ -611,7 +594,7 @@ var operateText = (function ($) {
             (change && change.length > 0) && cStatus.single(change);
             window.setTimeout(() => {
                 var _this = change[0];
-                classEdit.tempTrans($(_this));
+                dealTranObj.tempTrans($(_this));
             }, 50);
         }
     }
@@ -656,7 +639,7 @@ var operateText = (function ($) {
         (change && change.length > 0) && cStatus.single(change);
         window.setTimeout(() => {
             var _this = change[0];
-            classEdit.tempTrans($(_this));
+            dealTranObj.tempTrans($(_this));
         }, 50);
     }
     //用户自定义添加颜色入口
@@ -695,7 +678,7 @@ var operateText = (function ($) {
         (change && change.length > 0) && cStatus.single(change);
         window.setTimeout(() => {
             var _this = change[0];
-            classEdit.tempTrans($(_this));
+            dealTranObj.tempTrans($(_this));
         }, 50);
     }
     //切换大小写入口
@@ -752,7 +735,7 @@ var operateText = (function ($) {
             (change && change.length > 0) && cStatus.single(change);
             window.setTimeout(() => {
                 var _this = change[0];
-                classEdit.tempTrans($(_this));
+                dealTranObj.tempTrans($(_this));
             }, 50);
             return;
         }
@@ -771,7 +754,7 @@ var operateText = (function ($) {
         (change && change.length > 0) && cStatus.single(change);
         window.setTimeout(() => {
             var _this = change[0];
-            classEdit.tempTrans($(_this));
+            dealTranObj.tempTrans($(_this));
         }, 50);
     }
     return {
