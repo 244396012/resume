@@ -116,8 +116,6 @@ var operateText = (function ($) {
             if (val === 'font-size:') {
                 var fontsize = styObj.dataSet[key];
                 _styleStr += val + fontsize + "px;";
-            } else if(val === 'text-decoration:'){
-                _styleStr += val + 'line-through;';
             } else if (key !== 'fw' && key !== 'db') {
                 _styleStr += val + styObj.dataSet[key].replace(/[,]+/g, " ") + ";";
             }
@@ -186,7 +184,6 @@ var operateText = (function ($) {
                 case "cl": value = "color:#"; break;
                 case "sz": value = "font-size:"; break;
                 case "fs": value = "font-family:"; break;
-                case "sk": value = "text-decoration:"; break;
             }
             return value;
         }
