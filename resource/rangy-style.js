@@ -1,4 +1,3 @@
-
 define(['rangy-core'], function (rangy) {
     return {
         isSameStyle: isSameStyle,
@@ -193,7 +192,9 @@ define(['rangy-core'], function (rangy) {
             } else if (child.html() == "") {
                 child.remove();
             } else if (child.is("span")) {
-                child.removeAttr('style class');
+                if (!child.hasClass('fontText')) {
+                    child.removeAttr('style class');
+                }
                 nodes = child.contents();
                 for (var j = 0; j < nodes.length; j++) {
                     node = nodes.eq(j);
