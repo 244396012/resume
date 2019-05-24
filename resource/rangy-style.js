@@ -1,3 +1,4 @@
+
 define(['rangy-core'], function (rangy) {
     return {
         isSameStyle: isSameStyle,
@@ -6,49 +7,49 @@ define(['rangy-core'], function (rangy) {
         restoreDivStyle: restoreDivStyle,
         formatTarget: formatTarget
     };
-    function getTransTargetAttrs(sourceTxt,segInfo){
+    function getTransTargetAttrs(sourceTxt, segInfo) {
         var sameStyleData = window.sameStyleData;
         var targetAttrs = ' class="textarea_container ';
-        sourceTxt = sourceTxt.replace(/(^\s*)|(\s*$)/g,'');
+        sourceTxt = sourceTxt.replace(/(^\s*)|(\s*$)/g, '');
         sourceTxt = delBlank(sourceTxt);
         var isSameStyleResult = isSameStyle(sourceTxt);
 
-        if(!sameStyleData){
+        if (!sameStyleData) {
             sameStyleData = window.sameStyleData = {};
         }
-        if(isSameStyleResult){
+        if (isSameStyleResult) {
             sameStyleData[segInfo.seg_id] = isSameStyleResult;
-            if(!segInfo.last_targettxt ) {
+            if (!segInfo.last_targettxt) {
                 targetAttrs += isSameStyleResult.classNameStr + ' "';
                 if (isSameStyleResult.color) {
                     targetAttrs += ' style="color:' + isSameStyleResult.color + '" ';
                     targetAttrs += ' realcolor="' + isSameStyleResult.realcolor + '"';
                 }
-            }else{
+            } else {
                 targetAttrs += '"';
             }
             if (sourceTxt.indexOf("fontLink") > -1 || sourceTxt.indexOf('fontHide') > -1) {
                 targetAttrs += parseZAttrs(sourceTxt);
             }
 
-        }else {
+        } else {
             targetAttrs += '"';
         }
         return targetAttrs;
     }
-    function isSameStyle(txt){
-        var classNameStr,realcolor,
+    function isSameStyle(txt) {
+        var classNameStr, realcolor,
             color = undefined,
             result = false,
             reg = /<span(.*?)class="(.*?)"([^>]*)/g,
             arr = txt.match(reg);
 
-        if(arr && arr.length == 1){
+        if (arr && arr.length == 1) {
             classNameStr = RegExp.$2;
             classNameStr = classNameStr.replace(/(highlights)|(fontText)|(fontHide)/g, "");
             classNameStr = classNameStr.replace(/(^\s*)|(\s*$)/g, "");
-            if(classNameStr == "")return result;
-            if(classNameStr.indexOf("fontColor") != -1){
+            if (classNameStr == "") return result;
+            if (classNameStr.indexOf("fontColor") != -1) {
                 txt.match(/color:(.*?)"/);
                 color = RegExp.$1;
                 txt.match(/realcolor="(.*?)"/g);
@@ -57,53 +58,53 @@ define(['rangy-core'], function (rangy) {
             classNameStr += " sameStyle";
             result = {
                 classNameStr: classNameStr,
-                color : color,
-                realcolor : realcolor
+                color: color,
+                realcolor: realcolor
             }
         }
         return result;
     }
-    function delBlank(txt){
+    function delBlank(txt) {
         var span$,
             div$ = $("<div></div>");
         div$.html(txt);
         span$ = div$.children();
-        if(span$.length > 0){
+        if (span$.length > 0) {
             var firstSpan = span$.eq(0),
-                lastSpan = span$.eq(span$.length-1);
-            if(firstSpan.html().replace(/\s/g,"") == ""){
+                lastSpan = span$.eq(span$.length - 1);
+            if (firstSpan.html().replace(/\s/g, "") == "") {
                 firstSpan.remove();
             }
-            if(lastSpan.html().replace(/\s/g,"") == ""){
+            if (lastSpan.html().replace(/\s/g, "") == "") {
                 lastSpan.remove();
             }
         }
         return div$.html();
     }
     function transferStyleToSpan(div$, rangy) {
-        var spans,styleData;
-        if(!div$ && rangy){
+        var spans, styleData;
+        if (!div$ && rangy) {
             div$ = getDivFromRangy(rangy);
         }
-        if(div$ && div$.hasClass("sameStyle")){
+        if (div$ && div$.hasClass("sameStyle")) {
             spans = div$.children("span");
-            if(spans.length > 0){
+            if (spans.length > 0) {
                 styleData = parseDivStyle(div$);
                 spans.addClass(styleData.classNameStr);
-                spans.css("color",styleData.color);
-                spans.attr("realcolor",styleData.realcolor);
-                transferZTagData(div$,spans);
+                spans.css("color", styleData.color);
+                spans.attr("realcolor", styleData.realcolor);
+                transferZTagData(div$, spans);
                 div$.removeClass(styleData.classNameStr);
                 div$.removeClass("sameStyle");
-                div$.css("color","");
+                div$.css("color", "");
             }
         }
     }
-    function transferZTagData(div$,spanArr$){
-        var key,value,
-            zAttrsConfig = ["type", "content", "insured","num"];
+    function transferZTagData(div$, spanArr$) {
+        var key, value,
+            zAttrsConfig = ["type", "content", "insured", "num"];
 
-        if(div$.hasClass("fontLink") || div$.hasClass('fontHide')){
+        if (div$.hasClass("fontLink") || div$.hasClass('fontHide')) {
 
             for (var i = 0; i < zAttrsConfig.length; i++) {
                 key = zAttrsConfig[i];
@@ -112,51 +113,51 @@ define(['rangy-core'], function (rangy) {
             }
         }
     }
-    function parseZAttrs(txt){
-        var key,value,result = "",
+    function parseZAttrs(txt) {
+        var key, value, result = "",
             obj$ = $(txt),
-            zAttrsConfig = ["type", "content", "insured","num"];
+            zAttrsConfig = ["type", "content", "insured", "num"];
         for (var i = 0; i < zAttrsConfig.length; i++) {
             key = zAttrsConfig[i];
             value = obj$.attr(key);
-            if(value){
+            if (value) {
                 result += key + '="' + value + '" ';
             }
         }
 
         return result;
     }
-    function parseDivStyle(div$){
-        var classNameStr,color,classNames,realcolor;
+    function parseDivStyle(div$) {
+        var classNameStr, color, classNames, realcolor;
         classNameStr = div$.attr("class");
-        classNameStr = classNameStr.replace(/(sameStyle)|(textarea_container)/g,"");
+        classNameStr = classNameStr.replace(/(sameStyle)|(textarea_container)/g, "");
         classNameStr = classNameStr.replace(/(^\s*)|(\s*$)/g, "");
         classNames = classNameStr.split(" ");
         color = div$.css("color");
         realcolor = div$.attr("realcolor");
         return {
-            classNames:classNames,
-            classNameStr:classNameStr,
-            color:color,
-            realcolor:realcolor
+            classNames: classNames,
+            classNameStr: classNameStr,
+            color: color,
+            realcolor: realcolor
         }
     }
-    function restoreDivStyle(div$){
+    function restoreDivStyle(div$) {
         var styleData,
             segInfo = div$.parents("tr.segment").data("segment");
         styleData = window.sameStyleData[segInfo.seg_id];
-        if(div$ && styleData){
+        if (div$ && styleData) {
             div$.addClass(styleData.classNameStr);
             div$.addClass("sameStyle");
-            if(styleData.color){
-                div$.css("color",styleData.color);
-                div$.attr("realColor",styleData.realcolor);
+            if (styleData.color) {
+                div$.css("color", styleData.color);
+                div$.attr("realColor", styleData.realcolor);
             }
         }
     }
-    function getDivFromRangy(rangy){
+    function getDivFromRangy(rangy) {
         var result = $(rangy.commonAncestorContainer);
-        if(!result.is("div")){
+        if (!result.is("div")) {
             result = result.parents("div.textarea_container");
         }
         return result;
@@ -191,7 +192,8 @@ define(['rangy-core'], function (rangy) {
                 child.wrap('<span class="fontText"></span>');
             } else if (child.html() == "") {
                 child.remove();
-            } else if (child.is("span") ) {
+            } else if (child.is("span")) {
+                child.removeAttr('style class');
                 nodes = child.contents();
                 for (var j = 0; j < nodes.length; j++) {
                     node = nodes.eq(j);
@@ -228,7 +230,7 @@ define(['rangy-core'], function (rangy) {
                         child.before(spanTmp);
                     }
                 }
-            } 
+            }
             else {
                 tmp = child.text();
                 spanTmp = $('<span class="fontText"></span>');
@@ -237,18 +239,18 @@ define(['rangy-core'], function (rangy) {
                 illageChild = spanTmp;
             }
         }
-        //if (illageChild) {
-        //    rangeNode = illageChild ? illageChild[0] : rangeNode;
-        //    currentRange = rangy.getSelection().getRangeAt(0);
-        //    if (range && currentRange && rangeNode) {
-        //        if (!_restoreRange(range) && !_compareTwoRange(range, currentRange)
-        //            && rangeNode) {
-        //            range.setEndAfter(rangeNode);
-        //            range.collapse(false);
-        //            range.select();
-        //        }
-        //    }
-        //}
+        if (illageChild) {
+            rangeNode = illageChild ? illageChild[0] : rangeNode;
+            currentRange = rangy.getSelection().getRangeAt(0);
+            if (range && currentRange && rangeNode) {
+                if (!_restoreRange(range) && !_compareTwoRange(range, currentRange)
+                    && rangeNode) {
+                    range.setEndAfter(rangeNode);
+                    range.collapse(false);
+                    range.select();
+                }
+            }
+        }
         return dom$;
     }
 
@@ -284,4 +286,3 @@ define(['rangy-core'], function (rangy) {
     }
 
 });
-
