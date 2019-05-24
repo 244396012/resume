@@ -192,7 +192,7 @@ define(['rangy-core'], function (rangy) {
             } else if (child.html() == "") {
                 child.remove();
             } else if (child.is("span")) {
-                if (!child.hasClass('fontText')) {
+                if (!(child.hasClass('fontText') || child.hasClass('tagWrap'))) {
                     child.removeAttr('style class');
                 }
                 nodes = child.contents();
