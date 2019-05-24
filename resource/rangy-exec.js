@@ -36,9 +36,10 @@ define(['rangy-range', 'rangy-style', 'rangy-core'], function (segRangeTool, seg
         }
         else if (element && style && element.is("[style]")) {
             var styleKey = style.split(";");
-            styleKey = styleKey[0].split(":")
-            if (element.is("[style*=" + styleKey[0] + "]"))
+            styleKey = styleKey[0].split(":");
+            if (element.is("[style*=" + styleKey[0] + "]")) {
                 element.find("*").css(styleKey[0], styleKey[1]);
+            }
             selectText(element);
         }
     };
@@ -235,7 +236,7 @@ define(['rangy-range', 'rangy-style', 'rangy-core'], function (segRangeTool, seg
             for (let m in secondSpan[0].dataset) {
                 delete secondSpan[0].dataset[m];
             }
-        }
+        };
 
         this.multi = function () {//选中文本跨多个标签
             var text = this.span.text(),
