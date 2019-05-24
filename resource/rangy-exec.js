@@ -207,7 +207,7 @@ define(['rangy-range', 'rangy-style', 'rangy-core'], function (segRangeTool, seg
         };
         window.setTimeout(() => {
             var _this = divContainer[0];
-            classEdit.tempTrans($(_this));
+            dealTranObj.tempTrans($(_this));
         }, 50);
     }
 
