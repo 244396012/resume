@@ -3,6 +3,7 @@
 * 定义operateText对象，主要包含复制样式、自定义样式、插入标签、切换大小写等。
 * author: zy
 */
+
 var operateText = (function ($) {
     /*
     ******* 私有方法 **********
@@ -213,17 +214,17 @@ var operateText = (function ($) {
             secondSpan.after(thirdSpan);
             if (this.type && this.type === 'cl') {
                 cls = 'fontColor';
-                style ='color:#' + this.value + ';';
+                style = 'color:#' + this.value + ';';
                 originStyle = secondSpan.attr('style');
                 secondSpan.addClass(cls);
-                secondSpan.attr({'style': originStyle ? originStyle+style : style, 'data-cl': this.value});
+                secondSpan.attr({ 'style': originStyle ? originStyle + style : style, 'data-cl': this.value });
             }
             if (this.type && this.type === 'bg') {
                 cls = 'fontHighBg';
                 originStyle = secondSpan.attr('style');
                 style = 'background-color:#' + this.value + ';';
                 secondSpan.addClass(cls);
-                secondSpan.attr({ 'style': originStyle ? originStyle+style : style, 'data-bg': this.value });
+                secondSpan.attr({ 'style': originStyle ? originStyle + style : style, 'data-bg': this.value });
             }
         };
         //选中文本跨多个标签
@@ -243,12 +244,12 @@ var operateText = (function ($) {
                     originStyle = secondSpan.attr('style');
                     style = 'color:#' + this.value + ';';
                     secondSpan.addClass(cls);
-                    secondSpan.attr({ 'style': originStyle ? originStyle+style : style, 'data-cl': this.value });
+                    secondSpan.attr({ 'style': originStyle ? originStyle + style : style, 'data-cl': this.value });
                     for (let i = 0; i < sAll.length; i++) {
                         var tar = $(sAll[i]),
                             currStyle = tar.attr('style');
                         tar.addClass(cls);
-                        tar.attr({ 'style': currStyle ? currStyle+style : style, 'data-cl': this.value });
+                        tar.attr({ 'style': currStyle ? currStyle + style : style, 'data-cl': this.value });
                     }
                 }
                 if (this.type && this.type === 'bg') {
@@ -256,12 +257,12 @@ var operateText = (function ($) {
                     style = 'background-color:#' + this.value + ';';
                     originStyle = secondSpan.attr('style');
                     secondSpan.addClass(cls);
-                    secondSpan.attr({ 'style': originStyle ? originStyle+style : style, 'data-bg': this.value });
+                    secondSpan.attr({ 'style': originStyle ? originStyle + style : style, 'data-bg': this.value });
                     for (let i = 0; i < sAll.length; i++) {
                         var tar = $(sAll[i]),
                             currStyle = tar.attr('style');
                         tar.addClass(cls);
-                        tar.attr({ 'style': currStyle ? currStyle+style : style, 'data-bg': this.value });
+                        tar.attr({ 'style': currStyle ? currStyle + style : style, 'data-bg': this.value });
                     }
                 }
             }
@@ -273,25 +274,25 @@ var operateText = (function ($) {
                     style = 'color:#' + this.value + ';';
                     originStyle = secondSpan.attr('style');
                     this.span.addClass(cls);
-                    this.span.attr({ 'style': originStyle ? originStyle+style : style, 'data-cl': this.value });
+                    this.span.attr({ 'style': originStyle ? originStyle + style : style, 'data-cl': this.value });
                     for (let i = 0; i < sAll.length; i++) {
                         var tar = $(sAll[i]),
                             currStyle = tar.attr('style');
                         tar.addClass(cls);
-                        tar.attr({ 'style': currStyle ? currStyle+style : style, 'data-cl': this.value });
+                        tar.attr({ 'style': currStyle ? currStyle + style : style, 'data-cl': this.value });
                     }
                 }
                 if (this.type && this.type === 'bg') {
                     cls = 'fontHighBg';
-                    style = 'background-color:#' + this.value+';';
+                    style = 'background-color:#' + this.value + ';';
                     originStyle = secondSpan.attr('style');
                     this.span.addClass(cls);
-                    this.span.attr({ 'style': originStyle ? originStyle+style : style, 'data-bg': this.value });
+                    this.span.attr({ 'style': originStyle ? originStyle + style : style, 'data-bg': this.value });
                     for (let i = 0; i < sAll.length; i++) {
                         var tar = $(sAll[i]),
                             currStyle = tar.attr('style');
                         tar.addClass(cls);
-                        tar.attr({ 'style': currStyle ? currStyle+style : style, 'data-bg': this.value });
+                        tar.attr({ 'style': currStyle ? currStyle + style : style, 'data-bg': this.value });
                     }
                 }
             }
@@ -534,7 +535,7 @@ var operateText = (function ($) {
         change = $(range.startContainer).parents('.edition-target');
         editTd = $($(range.commonAncestorContainer).context.parentNode).parents('td.active-text');
         editTr = range.commonAncestorContainer.className
-        && (range.commonAncestorContainer.className == 'edition-target' || range.commonAncestorContainer.className == 'edition-source') ? editTd.context.parentNode : editTd[0].parentNode;
+            && (range.commonAncestorContainer.className == 'edition-target' || range.commonAncestorContainer.className == 'edition-source') ? editTd.context.parentNode : editTd[0].parentNode;
         //选中原文，不能插入
         if ((range.commonAncestorContainer.className && range.commonAncestorContainer.className == 'edition-source')
             || (range.commonAncestorContainer.nodeName == '#text' && range.commonAncestorContainer.parentNode.parentNode.className == 'edition-source')) {
@@ -694,37 +695,54 @@ var operateText = (function ($) {
             var el, elDiv;
             var hasCls = $(range.startContainer.parentNode).parents('tr').hasClass('table-row');
             if (hasCls) {
-                var caps, tempStr;
+                var caps;
                 el = $(range.startContainer.parentNode).parents('tr');
                 elDiv = el.find("div.edition-target");
                 el[0].dataset.caps == 5 && el.attr('data-caps', 1);
                 caps = el[0].dataset.caps;
-                tempStr = elDiv.contents()[0].innerText.replace(/^\s*/g, "");
                 if (caps == 1) {
-                    elDiv.contents()[0].innerText = tempStr.slice(0, 1).toUpperCase() + tempStr.slice(1);
+                    for (var i = 0, len = elDiv.contents().length; i < len; i++) {
+                        var child = elDiv.contents()[i],
+                            txt = child.innerText.replace(/^\s*/g, "");
+                        if (!$(child).hasClass('tagWrap')) {
+                            child.innerText = txt.slice(0, 1).toUpperCase() + txt.slice(1);
+                            return;
+                        }
+                    }
                 } else if (caps == 2) {
-                    elDiv.contents()[0].innerText = tempStr.slice(0, 1).toLowerCase() + tempStr.slice(1);
+                    for (var i = 0, len = elDiv.contents().length; i < len; i++) {
+                        var child = elDiv.contents()[i],
+                            txt = child.innerText.replace(/^\s*/g, "");
+                        if (!$(child).hasClass('tagWrap')) {
+                            child.innerText = txt.slice(0, 1).toLowerCase() + txt.slice(1);
+                            return;
+                        }
+                    }
                 } else if (caps == 3) {
                     for (var i = 0, len = elDiv.contents().length; i < len; i++) {
                         var child = elDiv.contents()[i];
                         var arr = [], dealArr = [], str = "";
-                        arr = child.innerText.split(' ');
-                        dealArr = arr.map((item, index) => {
-                            return item.slice(0, 1).toUpperCase() + item.slice(1);
-                        });
-                        str = dealArr.join(" ");
-                        child.innerText = str;
+                        if (!$(child).hasClass('tagWrap')) {
+                            arr = child.innerText.split(' ');
+                            dealArr = arr.map((item, index) => {
+                                return item.slice(0, 1).toUpperCase() + item.slice(1);
+                            });
+                            str = dealArr.join(" ");
+                            child.innerText = str;
+                        }
                     }
                 } else if (caps == 4) {
                     for (var i = 0, len = elDiv.contents().length; i < len; i++) {
                         var child = elDiv.contents()[i];
                         var arr = [], dealArr = [], str = "";
-                        arr = child.innerText.split(' ');
-                        dealArr = arr.map((item, index) => {
-                            return item.slice(0, 1).toLowerCase() + item.slice(1);
-                        });
-                        str = dealArr.join(" ");
-                        child.innerText = str;
+                        if (!$(child).hasClass('tagWrap')) {
+                            arr = child.innerText.split(' ');
+                            dealArr = arr.map((item, index) => {
+                                return item.slice(0, 1).toLowerCase() + item.slice(1);
+                            });
+                            str = dealArr.join(" ");
+                            child.innerText = str;
+                        }
                     }
                 }
                 el.attr('data-caps', ++caps);
@@ -761,3 +779,5 @@ var operateText = (function ($) {
         caseSensitiveEntry
     }
 })(jQuery);
+
+
