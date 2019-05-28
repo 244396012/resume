@@ -180,7 +180,7 @@ define(['rangy-core'], function (rangy) {
         }
         for (var i = 0; i < children.length; i++) {
             var tar = children[i];
-            if (tar.dataset.one && tar.dataset.one === '1') {
+            if ($(tar).attr('data-one') === '1') {
                 tar.innerText = tar.innerText.substring(0, tar.innerText.length - 1);
                 $(tar).removeAttr('data-one');
             }
