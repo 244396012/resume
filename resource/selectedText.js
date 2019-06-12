@@ -772,11 +772,68 @@ var operateText = (function ($) {
             dealTranObj.tempTrans($(_this));
         }, 50);
     }
+    
+    //QA高亮匹配
+    function markQaResult(editTr, clickTr) {
+        $(clickTr).addClass("active").siblings().removeClass("active");
+        var isMark = $(editTr).find('td.active-text').find("em.mark"),
+            isQ = $(editTr).find('td.active-text').find("q"),
+            isU = $(editTr).find('td.active-text').find("u");
+        if (isMark.length > 0 || isQ.length > 0 || isU.length > 0) {
+            var sourceCld = $(editTr).find('div.edition-source').contents(),
+                targetCld = $(editTr).find('div.edition-target').contents();
+            for (var n = 0; n < sourceCld.length; n++) {
+                var nodeSpan = $(sourceCld[n]);
+                if (!nodeSpan.hasClass('tagWrap')) {
+                    var nodeSpanTxt = nodeSpan.text();
+                    nodeSpan.text(nodeSpanTxt);
+                }
+            }
+            for (var m = 0; m < targetCld.length; m++) {
+                var nodeSpan = $(targetCld[m]);
+                if (!nodeSpan.hasClass('tagWrap')) {
+                    var nodeSpanTxt = nodeSpan.text();
+                    nodeSpan.text(nodeSpanTxt);
+                }
+            }
+        } 
+        if (clickTr.dataset.json) {
+            var data = JSON.parse($(clickTr).attr('data-json').replace(/\\"/g, "'"));
+            data.forEach(function (item){
+                var arr = [];
+                var elDiv = item.sentence[0] === "T" ? $(editTr).find("div.edition-target") : $(editTr).find("div.edition-source");
+                item.value.forEach((item1) => {
+                    arr.indexOf(item1) === -1 && arr.push(item1);
+                });
+                for (var i = 0; i < elDiv.contents().length; i++) {
+                    var node = elDiv.contents()[i],
+                        txt = node.innerHTML;
+					if(!$(node).hasClass('tagWrap')){
+						arr.forEach((item2) => {
+                        //不匹配<Q>、<U>等字符串，包括其子字符串；
+                        if (!/^([\<\/]*[qQuU]?[\>]*)$/.test(item2)) {
+                            var reg = null;
+                            try {
+                                reg = new RegExp(item2, 'g');
+                            } catch (e) {
+                                reg = item2;
+                            }
+								txt = txt.replace(item2, "<U>" + item2 + "</U>");
+							}
+						});
+						node.innerHTML = txt;
+					}
+                }
+            });
+        }
+    }
+    
     return {
         insertTagEntry,
         copyStyleEntry,
         customStyleEntry,
-        caseSensitiveEntry
+        caseSensitiveEntry,
+        markQaResult
     }
 })(jQuery);
 
