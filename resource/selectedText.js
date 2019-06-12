@@ -1,7 +1,7 @@
 /*
 * 该文件是文本操作对象。
 * 定义operateText对象，主要包含复制样式、自定义样式、插入标签、切换大小写等。
-* author: zy
+* author: zhaoyong
 */
 
 var operateText = (function ($) {
