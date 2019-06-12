@@ -162,6 +162,9 @@ define(['rangy-core'], function (rangy) {
         return result;
     }
     function formatTarget(dom$) {
+        var isMark = dom$.find('em.mark'),
+            isU = dom$.find('u'),
+            isQ = dom$.find('q');
         var child, nodes, node, currentRange,
             spanTmp, tmp, range, rangeNode,
             illageChild = null,
@@ -169,6 +172,16 @@ define(['rangy-core'], function (rangy) {
             childrenClone = children.clone(),
             isSelectText = false;
         var cls = '';
+        if (isMark.length > 0 || isU.length > 0 || isQ.length > 0) {
+            for (var n = 0; n < children.length; n++) {
+                var nodeSpan = $(children[n]);
+                if (!nodeSpan.hasClass('tagWrap')) {
+                    var nodeSpanTxt = nodeSpan.text();
+                    nodeSpan.text(nodeSpanTxt);
+                }
+            }
+            return;
+        }
         if (rangy.getSelection()) {
             range = rangy.getSelection().getRangeAt(0);
             rangeNode = _getRangeNode(range);
@@ -176,13 +189,6 @@ define(['rangy-core'], function (rangy) {
                 if (range.endOffset != range.startOffset) {
                     isSelectText = true;
                 }
-            }
-        }
-        for (var i = 0; i < children.length; i++) {
-            var tar = children[i];
-            if ($(tar).attr('data-one') === '1') {
-                tar.innerText = tar.innerText.substring(0, tar.innerText.length - 1);
-                $(tar).removeAttr('data-one');
             }
         }
         for (var i = 0; i < childrenClone.length; i++) {
