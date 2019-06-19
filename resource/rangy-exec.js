@@ -193,17 +193,19 @@ define(['rangy-range', 'rangy-style', 'rangy-core'], function (segRangeTool, seg
     } else if (document.selection) {
       userSelection = document.selection.createRange();
     }
-    if (userSelection.type === 'None') return;
+    if (userSelection.type === 'None') {
+      return;
+    }
     if (userSelection.type === 'Caret') {
       var target = $("tr.table-row.active");
-      var eles;
+      var eles = null;
       if (target && target.length > 0) {
         eles = target.find(".edition-target").contents().not('span.tagWrap');
         eles.removeClass().removeAttr('style').addClass('fontText');
-        for (let x = 0; x < eles.length; x++) {
+        for (var x = 0; x < eles.length; x++) {
           var el = eles[x];
-          for (let m in el.dataset) {
-            delete el.dataset[m];
+          for (var prop in el.dataset) {
+            delete el.dataset[prop];
           }
         }
         divContainer = target.find(".edition-target");
@@ -234,7 +236,7 @@ define(['rangy-range', 'rangy-style', 'rangy-core'], function (segRangeTool, seg
         (change && change.length > 0) && changeSts.single(change);
       }
     };
-    window.setTimeout(() => {
+    window.setTimeout(function(){
       var _this = divContainer[0];
       dealTranObj.tempTrans($(_this));
     }, 50);
@@ -261,7 +263,7 @@ define(['rangy-range', 'rangy-style', 'rangy-core'], function (segRangeTool, seg
       this.span.after(secondSpan);
       secondSpan.after(thirdSpan);
       secondSpan.removeClass().removeAttr('style').addClass('fontText');
-      for (let m in secondSpan[0].dataset) {
+      for (var m in secondSpan[0].dataset) {
         delete secondSpan[0].dataset[m];
       }
     };
@@ -278,12 +280,12 @@ define(['rangy-range', 'rangy-style', 'rangy-core'], function (segRangeTool, seg
         var sAll = this.span.next().nextUntil(this.oSpan);
         secondSpan.removeClass().removeAttr('style').addClass('fontText');
         sAll.removeClass().removeAttr('style').addClass('fontText');
-        for (let m in secondSpan[0].dataset) {
+        for (var m in secondSpan[0].dataset) {
           delete secondSpan[0].dataset[m];
         }
-        for (let x = 0; x < sAll.length; x++) {
+        for (var x = 0; x < sAll.length; x++) {
           var el = sAll[x];
-          for (let n in el.dataset) {
+          for (var n in el.dataset) {
             delete el.dataset[n];
           }
         }
@@ -292,12 +294,12 @@ define(['rangy-range', 'rangy-style', 'rangy-core'], function (segRangeTool, seg
         var sAll = this.oSpan.next().nextUntil(this.span);
         this.span.removeClass().removeAttr('style').addClass('fontText');
         sAll.removeClass().removeAttr('style').addClass('fontText');
-        for (let m in this.span[0].dataset) {
+        for (var m in this.span[0].dataset) {
           delete this.span[0].dataset[m];
         }
-        for (let x = 0; x < sAll.length; x++) {
+        for (var x = 0; x < sAll.length; x++) {
           var el = sAll[x];
-          for (let n in el.dataset) {
+          for (var n in el.dataset) {
             delete el.dataset[n];
           }
         }
