@@ -9,26 +9,32 @@ var operateText = (function ($) {
   /*
   ******* 私有方法 **********
   */
-  /***
-   * 获取某个节点的span父节点
-   * @param domEle：节点
-   * @returns span父节点
-   */
+/***
+* 获取某个节点的span父节点
+* @param domEle：节点
+* @returns span父节点
+*/
   function getClass(domEle) {
-    var result = domEle;
-    while (!(result.tagName && result.tagName == "SPAN")) {
-      result = result.parentNode;
-    }
-    return $(result);
+      var result = domEle;
+      if ($(result).hasClass('edition-target')) {
+          return $(result);
+      }
+      if ($(result.parentNode).hasClass('edition-target')) {
+          return $(result.parentNode);
+      }
+      while (!(result.tagName && result.tagName == "SPAN")) {
+          result = result.parentNode;
+      }
+      return $(result);
   };
-  /*** 方法：处理将插入的标签
-   * 打断某个span标签，生成新的span标签
-   * @param span$: 标签
-   * @param offset：偏移量
-   * @param id: 标签id
-   * @param txt: 标签序号
-   * @param type: 标签类型
-   */
+/*** 方法：处理将插入的标签
+* 打断某个span标签，生成新的span标签
+* @param span$: 标签
+* @param offset：偏移量
+* @param id: 标签id
+* @param txt: 标签序号
+* @param type: 标签类型
+*/
   function InsertTag(type, span, offset, offsetS, offsetE, tag) {
     this.type = type;
     this.span = span;
@@ -36,13 +42,21 @@ var operateText = (function ($) {
     this.offsetS = offsetS;
     this.offsetE = offsetE;
     let copyTag = $(tag).clone().removeAttr('style'),
-      copyEndTag = null;
+        copyEndTag = null;
     if (copyTag.hasClass('double')) {
       let tempTag = $(tag).clone().removeClass('start').removeAttr('data-notag style').addClass('end');
       tempTag.find('img').attr('src', '/Contents/Editor/images/tag-' + tempTag.attr('data-no') + '-02.png');
       copyEndTag = tempTag;
     };
-    //选中文本在标签内
+    //若光标不在span标签内，直接append标签到div中
+    if (this.span.hasClass('edition-target')) {
+        this.span.append(copyTag);
+        if (copyTag.hasClass('double')) {
+            this.span.append(copyEndTag);
+        }
+        return null;
+    }
+    //选中文本在SPAN标签内
     this.single = function () {
       if (this.span.hasClass("tagWrap") && this.span.hasClass("single")) {
         if (this.type === 'single') {
@@ -84,7 +98,7 @@ var operateText = (function ($) {
           break;
       }
     };
-    //选中文本跨多个标签
+    //选中文本跨多个SPAN标签
     this.multi = function () {
       var text = this.span.text(),
         firstTxt = text.substring(0, this.offset),
@@ -104,7 +118,14 @@ var operateText = (function ($) {
       }
     };
   }
-  //方法：复制文本样式
+/*
+*  CopyStyle: 复制文本样式
+*  @param styObj:  目标标签数据，存放到obj中
+*  @param span:  光标所在span开始标签
+*  @param offset, offsetS, offsetE:  位置偏移量
+*  @param oSpan:  光标所在span结束标签
+*
+*/
   function CopyStyle(styObj, span, offset, offsetS, offsetE, oSpan) {
     var _className = styObj.className.value,
       _styleStr = "";
@@ -122,7 +143,7 @@ var operateText = (function ($) {
         _styleStr += val + styObj.dataSet[key].replace(/[,]+/g, " ") + ";";
       }
     };
-    //选中文本在标签内
+    //选中文本在span标签内
     this.single = function () {
       var text = this.span.text(),
         firstTxt = text.substring(0, this.offsetS),
@@ -141,7 +162,7 @@ var operateText = (function ($) {
         secondSpan.attr("data-" + item, styObj.dataSet[item].replace(/[,]+/g, " "));
       }
     };
-    //选中文本跨多个标签
+    //选中文本跨多个span标签
     this.multi = function () {
       var text = this.span.text(),
         firstTxt = text.substring(0, this.offset),
@@ -190,7 +211,15 @@ var operateText = (function ($) {
       return value;
     }
   }
-  // 方法：自定义文本样式
+/*
+*  CopyStyle: 用户自定义样式
+*  @param type: 类型，只有两个值背景色或字体颜色
+*  @param val: 色度16进制值
+*  @param span: 光标所在span开始标签
+*  @param offset, offsetS, offsetE: 位置偏移量
+*  @param oSpan: 光标所在span结束标签
+*
+*/
   function CustomStyle(type, val, span, offset, offsetS, offsetE, oSpan) {
     var cls = '', style = '', originStyle = '';
     this.type = type;
@@ -200,7 +229,7 @@ var operateText = (function ($) {
     this.offsetS = offsetS;
     this.offsetE = offsetE;
     this.oSpan = oSpan;
-    //选中文本在标签内
+    //选中文本在span标签内
     this.single = function () {
       var text = this.span.text(),
         firstTxt = text.substring(0, this.offsetS),
@@ -228,7 +257,7 @@ var operateText = (function ($) {
         secondSpan.attr({ 'style': originStyle ? originStyle + style : style, 'data-bg': this.value });
       }
     };
-    //选中文本跨多个标签
+    //选中文本跨多个span标签
     this.multi = function () {
       var text = this.span.text(),
         firstTxt = text.substring(0, this.offset),
@@ -299,7 +328,14 @@ var operateText = (function ($) {
       }
     };
   };
-  // 类：选中文本，切换大小写
+/*
+*  CopyStyle: 切换大小写
+*  @param startEle: 开始标签
+*  @param endEle: 结束标签
+*  @param span: 光标所在span开始标签
+*  @param startOffset, endOffset: 位置偏移量
+*
+*/
   class CaseSensitive {
     constructor(startEle, endEle, startOffset, endOffset) {
       this.startEle = startEle;
@@ -308,7 +344,7 @@ var operateText = (function ($) {
       this.endOffset = endOffset;
       this.isTrans = this.$islower();
     }
-    //处理文本：nodeType = 3
+    //nodeType = 3 （文本类型）
     $text() {
       var range, userSelection;
       var text = this.startEle.text(),
@@ -327,7 +363,7 @@ var operateText = (function ($) {
       range.setStart(this.startEle[0].childNodes[0], this.startOffset);
       range.setEnd(this.startEle[0].childNodes[0], this.endOffset);
     }
-    //处理span元素：nodeType = 1
+    //span标签：nodeType = 1
     $document() {
       var range, userSelection;
       var nextAll = this.startEle.nextUntil(this.endEle);
@@ -366,7 +402,7 @@ var operateText = (function ($) {
       var isLower = lower.test(firstWord);
       return isLower;
     }
-    //文本：首字母大小写
+    //纯文本：首字母大小写
     $sentenceTxt(type) {
       var range, userSelection;
       var text = this.startEle.text(),
@@ -414,7 +450,7 @@ var operateText = (function ($) {
       range.setStart(this.startEle[0].childNodes[0], this.startOffset);
       range.setEnd(this.startEle[0].childNodes[0], this.endOffset);
     }
-    //span元素：首字母大小写
+    //span标签：首字母大小写
     $sentenceTag(type) {
       var range, userSelection;
       var nextAll = this.startEle.nextUntil(this.endEle);
@@ -508,9 +544,9 @@ var operateText = (function ($) {
       range.setEnd(this.endEle[0].childNodes[0], this.endOffset);
     };
   };
-  /*
-  ******** 共有方法 **********
-  */
+/*
+******** 共有方法 **********
+*/
   /***
    * 方法：插入标签入口
    * @param id：插入标签id
@@ -573,8 +609,8 @@ var operateText = (function ($) {
     if ($(editTr).attr('data-no') === $tr.attr('data-no')) {
       if (type === 'double') {
         if (nodes.length === 0 || nodes.length === 1) {
-          const singleTag = new InsertTag(type, getClass(range.startContainer), '', range.startOffset, range.endOffset, tag);
-          singleTag.single();
+            const singleTag = new InsertTag(type, getClass(range.startContainer), '', range.startOffset, range.endOffset, tag);
+            singleTag.single && singleTag.single();
         } else {
           for (var i = 0; i < nodes.length; i++) {
             if (i == 0) {
@@ -587,8 +623,8 @@ var operateText = (function ($) {
           }
         }
       } else if (type === 'single' && userSelection.type == 'Caret') {
-        const singleTag = new InsertTag(type, getClass(range.startContainer), '', range.startOffset, range.endOffset, tag);
-        singleTag.single();
+          const singleTag = new InsertTag(type, getClass(range.startContainer), '', range.startOffset, range.endOffset, tag);
+          singleTag.single && singleTag.single();
       }
       (change && change.length > 0) && cStatus.single(change);
       window.setTimeout(() => {
@@ -597,7 +633,10 @@ var operateText = (function ($) {
       }, 50);
     }
   }
-  //复制样式：带有颜色、背景色的原文入口
+/*
+* copyStyleEntry：复制样式入口函数
+* @param ele: 目标标签
+*/
   function copyStyleEntry(ele) {
     var userSelection, range, copy, nodes, change;
     var cStatus = new ChangeConfirmStatus();
@@ -645,7 +684,11 @@ var operateText = (function ($) {
       dealTranObj.tempTrans($(_this));
     }, 50);
   }
-  //用户自定义添加颜色入口
+/*
+* customStyleEntry：用户自定义样式入口函数
+* @param val: 16进制色度值
+* @param type: 类型
+*/
   function customStyleEntry(val, type) {
     var cStatus = new ChangeConfirmStatus();
     var userSelection, range, copy, nodes, change;
@@ -684,7 +727,10 @@ var operateText = (function ($) {
       dealTranObj.tempTrans($(_this));
     }, 50);
   }
-  //切换大小写入口
+/*
+* caseSensitiveEntry：切换大小写入口函数
+* @param f2: F2键盘键
+*/
   function caseSensitiveEntry(f2) {
     var cStatus = new ChangeConfirmStatus();
     var userSelection, range, copy, nodes, change, parent;
@@ -777,7 +823,6 @@ var operateText = (function ($) {
       dealTranObj.tempTrans($(_this));
     }, 50);
   }
-
   //QA高亮匹配
   function markQaResult(editTr, clickTr) {
     $(clickTr).addClass("active").siblings().removeClass("active");
