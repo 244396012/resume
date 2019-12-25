@@ -868,7 +868,7 @@ var operateText = (function ($) {
                                 } catch (e) {
                                     reg = item2;
                                 }
-                                txt = txt.replace(item2, "<U>" + item2 + "</U>");
+                                txt = txt.replace(reg, "<U>" + item2 + "</U>");
                             }
                         });
                         node.innerHTML = txt;
